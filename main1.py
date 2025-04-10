@@ -1,22 +1,22 @@
 import pandas as pd
 import numpy as np
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.linear_model import SGDClassifier
-import nltk
 import re
+import nltk
+nltk.download('stopwords')
 from nltk.corpus import stopwords
+import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
 import string
 import openpyxl
-import matplotlib.pyplot as plt
-%matplotlib inline
+
 
 df = pd.read_excel("C:/Users/sidiq/Belajar Python/CERDAS AI/data siap pakai.xlsx")
 #print(df.shape)
 #print(df.head())
 
-complaints_df = df.filter(["KETERANGAN_BERSIH","HASIL PREDIKSI"],axis = 1)
+complaints_df = df.filter(["KETERANGAN_BERSIH","KATEGORI"],axis = 1)
 print(complaints_df.head())
 
 print(complaints_df.isnull().sum())
@@ -25,8 +25,39 @@ complaints_df.dropna(inplace=True)
 print(complaints_df.shape)
 print(complaints_df.isnull().sum())
 
-print(complaints_df['HASIL PREDIKSI'].value_counts()).plot(kind='pie',autopct='%1.1f%%', startangle=90, colors=['#ff9999','#66b3ff'])
-plt.title('Distribution of Complaint Types')
+complaints_df = complaints_df[:1000]
+print(complaints_df.KATEGORI.value_counts().plot(kind='pie',autopct='%1.0f%%',figsize=(12,8)))
+
+def clean_text(text):
+
+    complaints = []
+
+    for comp in text:
+        # remove special characters
+        comp = re.sub(r'\W', ' ', str(comp))
+
+        # remove single characters
+        comp  = re.sub(r'\s+[a-zA-Z]\s+', ' ', comp )
+
+        # Remove single characters from the beginning
+        comp  = re.sub(r'\^[a-zA-Z]\s+', ' ', comp)
+
+        # Converting to Lowercase
+        comp  = comp.lower()
+
+        complaints.append(comp)
+
+    return complaints
+
+complaints = clean_text(list(complaints_df['KETERANGAN_BERSIH']))
+#print(complaints)
+
+tfid_conv = TfidfVectorizer(max_features=3000, min_df=10, max_df=0.7,stop_words=stopwords.words('indonesian'))
+X = tfid_conv.fit_transform(complaints).toarray()
+
+complaints_df['KATEGORI'] = complaints_df['KATEGORI'].astype('category')
+y = list(complaints_df['KATEGORI'].cat.codes)
+print(y)
 """
 nltk.download('stopwords')
 df['TANGGAL'] = pd.to_datetime(df['TANGGAL'], format='%d-%m-%Y',dayfirst=True)
