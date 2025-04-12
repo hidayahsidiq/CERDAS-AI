@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, confusion_matrix,accuracy_score
 import string
 import openpyxl
 
@@ -58,12 +61,19 @@ X = tfid_conv.fit_transform(complaints).toarray()
 complaints_df['KATEGORI'] = complaints_df['KATEGORI'].astype('category')
 y = list(complaints_df['KATEGORI'].cat.codes)
 print(y)
-"""
-nltk.download('stopwords')
-df['TANGGAL'] = pd.to_datetime(df['TANGGAL'], format='%d-%m-%Y',dayfirst=True)
-print(df['TANGGAL'].head())
-df['KETERANGAN_BERSIH'] = df['KETERANGAN_BERSIH'].astype(str)
-df['KETERANGAN_BERSIH'] = df['KETERANGAN_BERSIH'].str.lower()
-df['KETERANGAN_BERSIH'] = df['KETERANGAN_BERSIH'].str.replace(r'[^a-zA-Z0-9\s]', '', regex=True)
-print(df['KETERANGAN_BERSIH'].head())
-"""
+
+X_train,X_test, y_train,y_test = train_test_split(X,y, test_size=0.012, random_state=42)
+classifier = RandomForestClassifier(n_estimators=500, random_state=42)
+classifier.fit(X_train, y_train)
+y_pred = classifier.predict(X_test)
+
+
+print("classification_report",classification_report(y_test, y_pred))
+print("akurasi skore",accuracy_score(y_test, y_pred))
+
+user = input("Masukkan keluhan anda: ")
+data = [user]
+data = clean_text(data)
+data = tfid_conv.transform(data).toarray()
+pred = classifier.predict(data)
+print("Prediksi kategori keluhan anda adalah: ", pred)
