@@ -14,8 +14,7 @@ from sklearn.metrics import classification_report, confusion_matrix,accuracy_sco
 import string
 import openpyxl
 
-
-df = pd.read_excel("C:/Users/sidiq/Belajar Python/CERDAS AI/data siap pakai.xlsx")
+df = pd.read_excel("D:\Code\Python\Datasheet CERDAS\data siap pakai.xlsx")
 #print(df.shape)
 #print(df.head())
 
@@ -59,6 +58,8 @@ tfid_conv = TfidfVectorizer(max_features=3000, min_df=10, max_df=0.7,stop_words=
 X = tfid_conv.fit_transform(complaints).toarray()
 
 complaints_df['KATEGORI'] = complaints_df['KATEGORI'].astype('category')
+category_mapping = dict(enumerate(complaints_df['KATEGORI'].cat.categories))
+print("Category Mapping : ",category_mapping)
 y = list(complaints_df['KATEGORI'].cat.codes)
 print(y)
 
@@ -76,4 +77,6 @@ data = [user]
 data = clean_text(data)
 data = tfid_conv.transform(data).toarray()
 pred = classifier.predict(data)
-print("Prediksi kategori keluhan anda adalah: ", pred)
+
+predict_category = category_mapping[pred[0]]
+print("Prediksi kategori keluhan anda adalah: ", predict_category)
