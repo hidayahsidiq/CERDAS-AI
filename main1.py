@@ -13,8 +13,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix,accuracy_score
 import string
 import openpyxl
+import seaborn as sns
 
-df = pd.read_excel("D:\Code\Python\Datasheet CERDAS\data siap pakai.xlsx")
+df = pd.read_excel("D:\Code\Python\Datasheet CERDAS\data training.xlsx")
 #print(df.shape)
 #print(df.head())
 
@@ -27,7 +28,9 @@ complaints_df.dropna(inplace=True)
 print(complaints_df.shape)
 print(complaints_df.isnull().sum())
 
-complaints_df = complaints_df[:1000]
+print(sns.boxplot(complaints_df['KATEGORI']))
+
+complaints_df = complaints_df[:2960]
 print(complaints_df.KATEGORI.value_counts().plot(kind='pie',autopct='%1.0f%%',figsize=(12,8)))
 
 def clean_text(text):
@@ -63,8 +66,8 @@ print("Category Mapping : ",category_mapping)
 y = list(complaints_df['KATEGORI'].cat.codes)
 print(y)
 
-X_train,X_test, y_train,y_test = train_test_split(X,y, test_size=0.012, random_state=42)
-classifier = RandomForestClassifier(n_estimators=500, random_state=42)
+X_train,X_test, y_train,y_test = train_test_split(X,y, test_size=1, random_state=42)
+classifier = RandomForestClassifier(n_estimators=200, random_state=42)
 classifier.fit(X_train, y_train)
 y_pred = classifier.predict(X_test)
 
